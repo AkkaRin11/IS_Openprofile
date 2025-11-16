@@ -1,0 +1,70 @@
+package ru.akarpo.openprofile.is_openprofile.domain;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
+import ru.akarpo.openprofile.is_openprofile.domain.enm.PrivacyLevel;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "profiles")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Profile {
+
+    @Id
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    private UUID id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_profile_user"))
+    private User user;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String slug;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PrivacyLevel privacy;
+
+    @ManyToOne
+    @JoinColumn(name = "theme_id",
+            foreignKey = @ForeignKey(name = "fk_profile_theme"))
+    private Theme theme;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    /** profile_widgets.profile_id */
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProfileWidget> widgets = new ArrayList<>();
+
+    /** profile_media.profile_id */
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProfileMedia> media = new ArrayList<>();
+
+    /** publications.profile_id */
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Publication> publications = new ArrayList<>();
+}
