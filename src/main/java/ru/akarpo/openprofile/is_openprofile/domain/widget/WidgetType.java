@@ -1,4 +1,4 @@
-package ru.akarpo.openprofile.is_openprofile.domain;
+package ru.akarpo.openprofile.is_openprofile.domain.widget;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonType;
@@ -9,8 +9,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity

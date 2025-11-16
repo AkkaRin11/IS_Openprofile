@@ -1,4 +1,4 @@
-package ru.akarpo.openprofile.is_openprofile.domain;
+package ru.akarpo.openprofile.is_openprofile.domain.profile;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;

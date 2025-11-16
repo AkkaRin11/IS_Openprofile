@@ -1,4 +1,4 @@
-package ru.akarpo.openprofile.is_openprofile.domain;
+package ru.akarpo.openprofile.is_openprofile.domain.profile;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;

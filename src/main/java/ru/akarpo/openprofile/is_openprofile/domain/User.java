@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import ru.akarpo.openprofile.is_openprofile.domain.profile.Profile;
 
 import java.time.Instant;
 import java.util.ArrayList;

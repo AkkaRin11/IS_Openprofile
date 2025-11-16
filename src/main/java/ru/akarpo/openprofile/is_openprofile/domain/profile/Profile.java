@@ -1,11 +1,14 @@
-package ru.akarpo.openprofile.is_openprofile.domain;
+package ru.akarpo.openprofile.is_openprofile.domain.profile;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
-import ru.akarpo.openprofile.is_openprofile.domain.enm.PrivacyLevel;
+import ru.akarpo.openprofile.is_openprofile.domain.Publication;
+import ru.akarpo.openprofile.is_openprofile.domain.Theme;
+import ru.akarpo.openprofile.is_openprofile.domain.User;
+import ru.akarpo.openprofile.is_openprofile.enm.PrivacyLevel;
 
 import java.time.Instant;
 import java.util.ArrayList;

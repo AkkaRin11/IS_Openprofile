@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import ru.akarpo.openprofile.is_openprofile.domain.profile.ProfileMedia;
 
 import java.time.Instant;
 import java.util.ArrayList;

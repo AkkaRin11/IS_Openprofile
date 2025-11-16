@@ -1,7 +1,9 @@
-package ru.akarpo.openprofile.is_openprofile.domain;
+package ru.akarpo.openprofile.is_openprofile.domain.widget;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ru.akarpo.openprofile.is_openprofile.domain.ServiceConnection;
+import ru.akarpo.openprofile.is_openprofile.domain.profile.ProfileWidget;
 
 @Entity
 @Table(name = "widget_bindings")

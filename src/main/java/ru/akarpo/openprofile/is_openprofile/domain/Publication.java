@@ -7,7 +7,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UuidGenerator;
-import ru.akarpo.openprofile.is_openprofile.domain.enm.PublicationStatus;
+import ru.akarpo.openprofile.is_openprofile.domain.profile.Profile;
+import ru.akarpo.openprofile.is_openprofile.enm.PublicationStatus;
 
 import java.time.Instant;
 import java.util.UUID;
