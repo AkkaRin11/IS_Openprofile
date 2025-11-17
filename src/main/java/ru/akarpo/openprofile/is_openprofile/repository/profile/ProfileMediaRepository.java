@@ -5,6 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.ProfileMedia;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.ProfileMediaId;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 public interface ProfileMediaRepository extends JpaRepository<ProfileMedia, ProfileMediaId> {
+    Optional<ProfileMedia> findByProfileId(UUID profileId);
+    Optional<ProfileMedia> findByMediaId(UUID mediaId);
+    Optional<ProfileMedia> findByProfileIdAndMediaId(UUID profileId, UUID mediaId);
 }
