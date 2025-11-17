@@ -1,4 +1,4 @@
-package ru.akarpo.openprofile.is_openprofile.service;
+package ru.akarpo.openprofile.is_openprofile.service.widget;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

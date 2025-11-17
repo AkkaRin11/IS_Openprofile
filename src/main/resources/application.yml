@@ -12,3 +12,15 @@ spring:
     hikari:
       maximum-pool-size: 10
       connection-timeout: 30000
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    try-it-out-enabled: true
