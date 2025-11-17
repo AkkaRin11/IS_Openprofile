@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.Profile;
 import ru.akarpo.openprofile.is_openprofile.dto.profile.ProfileDTO;
+import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
 import ru.akarpo.openprofile.is_openprofile.mapper.profile.ProfileMapper;
 import ru.akarpo.openprofile.is_openprofile.repository.profile.ProfileRepository;
 
@@ -24,9 +25,21 @@ public class ProfileService {
                 .toList();
     }
 
+    public ProfileDTO findByIdOrThrow(UUID id) {
+        return profileRepository.findById(id)
+                .map(profileMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile", "id", id));
+    }
+
     public Optional<ProfileDTO> findById(UUID id) {
         return profileRepository.findById(id)
                 .map(profileMapper::toDto);
+    }
+
+    public ProfileDTO findBySlugOrThrow(String slug) {
+        return profileRepository.findBySlug(slug)
+                .map(profileMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile", "slug", slug));
     }
 
     public Optional<ProfileDTO> findBySlug(String slug) {
@@ -47,6 +60,9 @@ public class ProfileService {
     }
 
     public void deleteById(UUID id) {
+        if (!profileRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Profile", "id", id);
+        }
         profileRepository.deleteById(id);
     }
 }

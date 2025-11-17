@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.akarpo.openprofile.is_openprofile.domain.User;
 import ru.akarpo.openprofile.is_openprofile.dto.UserDTO;
+import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
 import ru.akarpo.openprofile.is_openprofile.mapper.UserMapper;
 import ru.akarpo.openprofile.is_openprofile.repository.UserRepository;
 
@@ -24,9 +25,21 @@ public class UserService {
                 .toList();
     }
 
+    public UserDTO findByIdOrThrow(UUID id) {
+        return userRepository.findById(id)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+
     public Optional<UserDTO> findById(UUID id) {
         return userRepository.findById(id)
                 .map(userMapper::toDto);
+    }
+
+    public UserDTO findByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 
     public Optional<UserDTO> findByEmail(String email) {
@@ -41,6 +54,9 @@ public class UserService {
     }
 
     public void deleteById(UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User", "id", id);
+        }
         userRepository.deleteById(id);
     }
 }

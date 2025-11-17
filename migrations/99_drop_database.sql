@@ -1,0 +1,2 @@
+-- SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='openprofile';
+-- DROP DATABASE IF EXISTS openprofile;
