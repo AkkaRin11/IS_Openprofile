@@ -3,6 +3,7 @@ package ru.akarpo.openprofile.is_openprofile.service.profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.ProfileMedia;
+import ru.akarpo.openprofile.is_openprofile.domain.profile.ProfileMediaId;
 import ru.akarpo.openprofile.is_openprofile.dto.profile.ProfileMediaDTO;
 import ru.akarpo.openprofile.is_openprofile.mapper.profile.ProfileMediaMapper;
 import ru.akarpo.openprofile.is_openprofile.repository.profile.ProfileMediaRepository;
@@ -48,6 +49,7 @@ public class ProfileMediaService {
     }
 
     public void deleteById(UUID profileId, UUID mediaId) {
-        profileMediaRepository.findByProfileIdAndMediaId(profileId, mediaId);
+        ProfileMediaId id = new ProfileMediaId(profileId, mediaId);
+        profileMediaRepository.deleteById(id);
     }
 }

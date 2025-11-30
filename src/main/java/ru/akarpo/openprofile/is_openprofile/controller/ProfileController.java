@@ -2,9 +2,13 @@ package ru.akarpo.openprofile.is_openprofile.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import ru.akarpo.openprofile.is_openprofile.domain.User;
 import ru.akarpo.openprofile.is_openprofile.dto.profile.ProfileDTO;
 import ru.akarpo.openprofile.is_openprofile.enm.PrivacyLevel;
+import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
+import ru.akarpo.openprofile.is_openprofile.repository.UserRepository;
 import ru.akarpo.openprofile.is_openprofile.schema.request.CreateProfileRequest;
 import ru.akarpo.openprofile.is_openprofile.schema.request.UpdateProfileRequest;
 import ru.akarpo.openprofile.is_openprofile.schema.response.ApiResponse;
@@ -19,6 +23,7 @@ import java.util.UUID;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProfileDTO>>> getAllProfiles() {
@@ -56,10 +61,15 @@ public class ProfileController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProfileDTO>> createProfile(@RequestBody CreateProfileRequest request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
         ProfileDTO profileDTO = ProfileDTO.builder()
+                .userId(user.getId())
                 .name(request.getName())
                 .slug(request.getSlug())
-                .privacy(PrivacyLevel.valueOf(request.getPrivacy()))
+                .privacy(PrivacyLevel.valueOf(request.getPrivacy().toUpperCase()))
                 .themeId(request.getThemeId())
                 .build();
         ProfileDTO saved = profileService.save(profileDTO);
@@ -77,8 +87,8 @@ public class ProfileController {
                     ProfileDTO updated = ProfileDTO.builder()
                             .id(id)
                             .name(request.getName())
-                            .slug(existing.getSlug()) // slug не меняется
-                            .privacy(PrivacyLevel.valueOf(request.getPrivacy()))
+                            .slug(existing.getSlug())
+                            .privacy(PrivacyLevel.valueOf(request.getPrivacy().toUpperCase()))
                             .themeId(request.getThemeId())
                             .userId(existing.getUserId())
                             .createdAt(existing.getCreatedAt())

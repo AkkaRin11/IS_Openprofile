@@ -3,6 +3,7 @@ package ru.akarpo.openprofile.is_openprofile.service.widget;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.akarpo.openprofile.is_openprofile.domain.widget.WidgetBinding;
+import ru.akarpo.openprofile.is_openprofile.domain.widget.WidgetBindingId;
 import ru.akarpo.openprofile.is_openprofile.dto.widget.WidgetBindingDTO;
 import ru.akarpo.openprofile.is_openprofile.mapper.widget.WidgetBindingMapper;
 import ru.akarpo.openprofile.is_openprofile.repository.widget.WidgetBindingRepository;
@@ -30,13 +31,13 @@ public class WidgetBindingService {
     }
 
     public List<WidgetBindingDTO> findByProfileWidgetId(UUID profileWidgetId) {
-        return widgetBindingRepository.findByProfileWidgetId(profileWidgetId).stream()
+        return widgetBindingRepository.findAllByProfileWidgetId(profileWidgetId).stream()
                 .map(widgetBindingMapper::toDto)
                 .toList();
     }
 
     public List<WidgetBindingDTO> findByConnectionId(UUID connectionId) {
-        return widgetBindingRepository.findByConnectionId(connectionId).stream()
+        return widgetBindingRepository.findAllByConnectionId(connectionId).stream()
                 .map(widgetBindingMapper::toDto)
                 .toList();
     }

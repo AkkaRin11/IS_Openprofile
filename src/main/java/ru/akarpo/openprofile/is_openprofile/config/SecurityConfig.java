@@ -32,11 +32,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/").permitAll()
+                .requestMatchers("/api").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/public-profiles/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/api-docs/**", "/docs/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/docs/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/profile-management/public/**").permitAll()
+                .requestMatchers("/api/themes/**").permitAll()
+                .requestMatchers("/api/widget-types/**").permitAll()
+                .requestMatchers("/api/external-services/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

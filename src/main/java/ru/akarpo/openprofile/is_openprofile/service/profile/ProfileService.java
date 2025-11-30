@@ -2,10 +2,15 @@ package ru.akarpo.openprofile.is_openprofile.service.profile;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.akarpo.openprofile.is_openprofile.domain.Theme;
+import ru.akarpo.openprofile.is_openprofile.domain.User;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.Profile;
 import ru.akarpo.openprofile.is_openprofile.dto.profile.ProfileDTO;
 import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
 import ru.akarpo.openprofile.is_openprofile.mapper.profile.ProfileMapper;
+import ru.akarpo.openprofile.is_openprofile.repository.ThemeRepository;
+import ru.akarpo.openprofile.is_openprofile.repository.UserRepository;
 import ru.akarpo.openprofile.is_openprofile.repository.profile.ProfileRepository;
 
 import java.util.List;
@@ -17,6 +22,8 @@ import java.util.UUID;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final UserRepository userRepository;
+    private final ThemeRepository themeRepository;
     private final ProfileMapper profileMapper;
 
     public List<ProfileDTO> findAll() {
@@ -53,8 +60,36 @@ public class ProfileService {
                 .toList();
     }
 
+    @Transactional
     public ProfileDTO save(ProfileDTO profileDTO) {
-        Profile profile = profileMapper.toEntity(profileDTO);
+        Profile profile;
+
+        if (profileDTO.getId() != null) {
+            profile = profileRepository.findById(profileDTO.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Profile", "id", profileDTO.getId()));
+            profile.setName(profileDTO.getName());
+            profile.setPrivacy(profileDTO.getPrivacy());
+        } else {
+            profile = new Profile();
+            profile.setName(profileDTO.getName());
+            profile.setSlug(profileDTO.getSlug());
+            profile.setPrivacy(profileDTO.getPrivacy());
+
+            if (profileDTO.getUserId() != null) {
+                User user = userRepository.findById(profileDTO.getUserId())
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", profileDTO.getUserId()));
+                profile.setUser(user);
+            }
+        }
+
+        if (profileDTO.getThemeId() != null) {
+            Theme theme = themeRepository.findById(profileDTO.getThemeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Theme", "id", profileDTO.getThemeId()));
+            profile.setTheme(theme);
+        } else {
+            profile.setTheme(null);
+        }
+
         Profile saved = profileRepository.save(profile);
         return profileMapper.toDto(saved);
     }

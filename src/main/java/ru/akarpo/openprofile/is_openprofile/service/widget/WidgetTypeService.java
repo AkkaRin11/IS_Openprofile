@@ -35,7 +35,7 @@ public class WidgetTypeService {
     }
 
     public List<WidgetTypeDTO> findBySupportsBinding(boolean supportsBinding) {
-        return widgetTypeRepository.findBySupportsBinding(supportsBinding).stream()
+        return widgetTypeRepository.findAllBySupportsBinding(supportsBinding).stream()
                 .map(widgetTypeMapper::toDto)
                 .toList();
     }
