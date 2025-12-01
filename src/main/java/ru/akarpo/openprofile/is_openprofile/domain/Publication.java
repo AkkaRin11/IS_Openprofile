@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UuidGenerator;
+import ru.akarpo.openprofile.is_openprofile.converter.PublicationStatusConverter;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.Profile;
 import ru.akarpo.openprofile.is_openprofile.enm.PublicationStatus;
 
@@ -36,8 +37,8 @@ public class Publication {
             foreignKey = @ForeignKey(name = "fk_publication_profile"))
     private Profile profile;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Convert(converter = PublicationStatusConverter.class)
+    @Column(nullable = false, columnDefinition = "publication_status")
     private PublicationStatus status;
 
     @Column(name = "is_active", nullable = false)

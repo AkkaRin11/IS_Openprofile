@@ -98,7 +98,7 @@ DECLARE
     v_slug text;
     v_pub_id uuid;
     v_snapshot jsonb;
-    v_privacy privacy_level;
+    v_privacy text;
 BEGIN
     SELECT slug, privacy INTO v_slug, v_privacy
     FROM profiles

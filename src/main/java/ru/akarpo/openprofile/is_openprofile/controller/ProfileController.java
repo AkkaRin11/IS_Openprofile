@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.akarpo.openprofile.is_openprofile.domain.User;
 import ru.akarpo.openprofile.is_openprofile.dto.profile.ProfileDTO;
 import ru.akarpo.openprofile.is_openprofile.enm.PrivacyLevel;
+import ru.akarpo.openprofile.is_openprofile.exception.BadRequestException;
 import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
 import ru.akarpo.openprofile.is_openprofile.repository.UserRepository;
 import ru.akarpo.openprofile.is_openprofile.schema.request.CreateProfileRequest;
@@ -24,6 +25,23 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final UserRepository userRepository;
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    }
+
+    private PrivacyLevel parsePrivacyLevel(String privacy) {
+        if (privacy == null || privacy.isBlank()) {
+            return PrivacyLevel.PUBLIC;
+        }
+        try {
+            return PrivacyLevel.valueOf(privacy.toUpperCase().trim());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid privacy level: " + privacy + ". Allowed values: public, unlisted, private");
+        }
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProfileDTO>>> getAllProfiles() {
@@ -59,17 +77,24 @@ public class ProfileController {
                 .build());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<ProfileDTO>>> getMyProfiles() {
+        User user = getCurrentUser();
+        List<ProfileDTO> profiles = profileService.findByUserId(user.getId());
+        return ResponseEntity.ok(ApiResponse.<List<ProfileDTO>>builder()
+                .data(profiles)
+                .build());
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<ProfileDTO>> createProfile(@RequestBody CreateProfileRequest request) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        User user = getCurrentUser();
 
         ProfileDTO profileDTO = ProfileDTO.builder()
                 .userId(user.getId())
                 .name(request.getName())
                 .slug(request.getSlug())
-                .privacy(PrivacyLevel.valueOf(request.getPrivacy().toUpperCase()))
+                .privacy(parsePrivacyLevel(request.getPrivacy()))
                 .themeId(request.getThemeId())
                 .build();
         ProfileDTO saved = profileService.save(profileDTO);
@@ -86,10 +111,10 @@ public class ProfileController {
                 .map(existing -> {
                     ProfileDTO updated = ProfileDTO.builder()
                             .id(id)
-                            .name(request.getName())
+                            .name(request.getName() != null ? request.getName() : existing.getName())
                             .slug(existing.getSlug())
-                            .privacy(PrivacyLevel.valueOf(request.getPrivacy().toUpperCase()))
-                            .themeId(request.getThemeId())
+                            .privacy(request.getPrivacy() != null ? parsePrivacyLevel(request.getPrivacy()) : existing.getPrivacy())
+                            .themeId(request.getThemeId() != null ? request.getThemeId() : existing.getThemeId())
                             .userId(existing.getUserId())
                             .createdAt(existing.getCreatedAt())
                             .build();

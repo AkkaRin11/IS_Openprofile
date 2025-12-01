@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import ru.akarpo.openprofile.is_openprofile.converter.PrivacyLevelConverter;
 import ru.akarpo.openprofile.is_openprofile.domain.Publication;
 import ru.akarpo.openprofile.is_openprofile.domain.Theme;
 import ru.akarpo.openprofile.is_openprofile.domain.User;
@@ -39,8 +40,8 @@ public class Profile {
     @Column(nullable = false, unique = true)
     private String slug;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Convert(converter = PrivacyLevelConverter.class)
+    @Column(nullable = false, columnDefinition = "privacy_level")
     private PrivacyLevel privacy;
 
     @ManyToOne
@@ -56,17 +57,14 @@ public class Profile {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    /** profile_widgets.profile_id */
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProfileWidget> widgets = new ArrayList<>();
 
-    /** profile_media.profile_id */
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProfileMedia> media = new ArrayList<>();
 
-    /** publications.profile_id */
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Publication> publications = new ArrayList<>();

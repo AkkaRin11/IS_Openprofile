@@ -31,13 +31,16 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // SQL: password_hash text NOT NULL CHECK (length(password_hash) >= 20)
     @Column(name = "password_hash", nullable = false, length = 2048)
     private String passwordHash;
 
     @Column(name = "two_factor_enabled", nullable = false)
     @Builder.Default
     private boolean twoFactorEnabled = false;
+
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -47,23 +50,14 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    /**
-     * OneToMany — profiles.user_id → users.id
-     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Profile> profiles = new ArrayList<>();
 
-    /**
-     * service_connections.user_id → users.id
-     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ServiceConnection> connections = new ArrayList<>();
 
-    /**
-     * media_assets.user_id → users.id
-     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MediaAsset> mediaAssets = new ArrayList<>();

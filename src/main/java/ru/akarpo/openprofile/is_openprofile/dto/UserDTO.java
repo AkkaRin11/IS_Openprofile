@@ -1,6 +1,5 @@
 package ru.akarpo.openprofile.is_openprofile.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +16,7 @@ public class UserDTO {
     private UUID id;
     private String email;
     private boolean twoFactorEnabled;
+    private boolean emailVerified;
     private Instant createdAt;
     private Instant updatedAt;
 }

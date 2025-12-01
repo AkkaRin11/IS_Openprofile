@@ -10,7 +10,7 @@ import ru.akarpo.openprofile.is_openprofile.repository.UserRepository;
 
 import java.util.ArrayList;
 
-@Service
+@Service("userDetailsService")
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 

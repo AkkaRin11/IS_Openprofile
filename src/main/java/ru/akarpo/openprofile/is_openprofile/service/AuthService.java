@@ -5,6 +5,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,6 @@ import ru.akarpo.openprofile.is_openprofile.schema.request.LoginRequest;
 import ru.akarpo.openprofile.is_openprofile.schema.request.RegisterRequest;
 import ru.akarpo.openprofile.is_openprofile.schema.request.ResetPasswordRequest;
 import ru.akarpo.openprofile.is_openprofile.schema.response.AuthResponse;
-import ru.akarpo.openprofile.is_openprofile.security.CustomUserDetailsService;
 import ru.akarpo.openprofile.is_openprofile.security.JwtService;
 
 import java.time.Instant;
@@ -34,7 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final EmailService emailService;
     private final TwoFactorService twoFactorService;
 
@@ -48,6 +48,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .twoFactorEnabled(false)
+                .emailVerified(false)
                 .build();
 
         user = userRepository.save(user);
@@ -82,6 +83,10 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
 
+        if (!user.isEmailVerified()) {
+            throw new BadRequestException("Please verify your email before logging in");
+        }
+
         if (user.isTwoFactorEnabled() && (request.getTwoFactorCode() == null || request.getTwoFactorCode().isEmpty())) {
             throw new BadRequestException("Two-factor authentication code required");
         }
@@ -109,10 +114,14 @@ public class AuthService {
                 .orElseThrow(() -> new BadRequestException("Invalid verification token"));
 
         if (verificationToken.getExpiryDate().isBefore(Instant.now())) {
+            tokenRepository.delete(verificationToken);
             throw new BadRequestException("Verification token expired");
         }
 
         User user = verificationToken.getUser();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+
         tokenRepository.delete(verificationToken);
     }
 
@@ -139,6 +148,7 @@ public class AuthService {
                 .orElseThrow(() -> new BadRequestException("Invalid reset token"));
 
         if (verificationToken.getExpiryDate().isBefore(Instant.now())) {
+            tokenRepository.delete(verificationToken);
             throw new BadRequestException("Reset token expired");
         }
 

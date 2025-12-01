@@ -11,6 +11,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
 
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}:${PGPORT}/${POSTGRES_DB}
@@ -19,17 +20,23 @@ spring:
     hikari:
       maximum-pool-size: 10
       connection-timeout: 30000
+
   mail:
-    host: ${SMTP_HOST:smtp.gmail.com}
+    host: ${SMTP_HOST:mail.akarpov.ru}
     port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    username: ${SMTP_USERNAME:openprofile@akarpov.ru}
+    password: ${SMTP_PASSWORD:}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   servlet:
     multipart:
       max-file-size: 10MB
@@ -42,7 +49,7 @@ jwt:
 app:
   base-url: ${BASE_URL:http://localhost:8080}
   email:
-    from: ${EMAIL_FROM:noreply@openprofile.ru}
+    from: ${EMAIL_FROM:openprofile@akarpov.ru}
 
 media:
   upload:
@@ -51,7 +58,7 @@ media:
 
 springdoc:
   api-docs:
-    path: /api-docs
+    path: /v3/api-docs
     enabled: true
   swagger-ui:
     path: /swagger-ui.html
@@ -60,3 +67,8 @@ springdoc:
     tags-sorter: alpha
     display-request-duration: true
     try-it-out-enabled: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
+server:
+  port: 8080

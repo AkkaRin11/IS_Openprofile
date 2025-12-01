@@ -6,9 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.akarpo.openprofile.is_openprofile.domain.User;
 import ru.akarpo.openprofile.is_openprofile.dto.MediaAssetDTO;
+import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
+import ru.akarpo.openprofile.is_openprofile.repository.UserRepository;
 import ru.akarpo.openprofile.is_openprofile.schema.response.ApiResponse;
 import ru.akarpo.openprofile.is_openprofile.service.MediaUploadService;
 
@@ -21,15 +25,22 @@ import java.util.UUID;
 public class MediaController {
 
     private final MediaUploadService mediaUploadService;
+    private final UserRepository userRepository;
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload image file")
     public ResponseEntity<ApiResponse<MediaAssetDTO>> uploadImage(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("userId") UUID userId,
             @RequestParam(value = "altText", required = false) String altText) {
 
-        MediaAssetDTO mediaAsset = mediaUploadService.uploadImage(userId, file, altText);
+        User user = getCurrentUser();
+        MediaAssetDTO mediaAsset = mediaUploadService.uploadImage(user.getId(), file, altText);
 
         return ResponseEntity.ok(ApiResponse.<MediaAssetDTO>builder()
                 .message("File uploaded successfully")

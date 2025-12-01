@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.akarpo.openprofile.is_openprofile.schema.request.*;
@@ -39,9 +40,121 @@ public class AuthController {
                 .build());
     }
 
+    @GetMapping(value = "/verify-email", produces = MediaType.TEXT_HTML_VALUE)
+    @Operation(summary = "Verify email with token (GET - for email links)")
+    public ResponseEntity<String> verifyEmailGet(@RequestParam String token) {
+        try {
+            authService.verifyEmail(token);
+            String html = """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Email Verified - OpenProfile</title>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            margin: 0;
+                            background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
+                        }
+                        .card {
+                            background: white;
+                            padding: 40px;
+                            border-radius: 16px;
+                            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                            text-align: center;
+                            max-width: 400px;
+                        }
+                        .icon { font-size: 64px; margin-bottom: 20px; }
+                        h1 { color: #1a1a1a; margin-bottom: 10px; }
+                        p { color: #666; line-height: 1.6; }
+                        .btn {
+                            display: inline-block;
+                            margin-top: 20px;
+                            padding: 12px 30px;
+                            background: #667eea;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 8px;
+                            font-weight: 500;
+                        }
+                        .btn:hover { background: #5a6fd6; }
+                    </style>
+                </head>
+                <body>
+                    <div class="card">
+                        <h1>Email Verified!</h1>
+                        <p>Your email has been successfully verified. You can now log in to your OpenProfile account.</p>
+                        <a href="/" class="btn">Go to Homepage</a>
+                    </div>
+                </body>
+                </html>
+                """;
+            return ResponseEntity.ok(html);
+        } catch (Exception e) {
+            String html = """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Verification Failed - OpenProfile</title>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            margin: 0;
+                            background: linear-gradient(135deg, #e74c3c 0%%, #c0392b 100%%);
+                        }
+                        .card {
+                            background: white;
+                            padding: 40px;
+                            border-radius: 16px;
+                            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                            text-align: center;
+                            max-width: 400px;
+                        }
+                        .icon { font-size: 64px; margin-bottom: 20px; }
+                        h1 { color: #1a1a1a; margin-bottom: 10px; }
+                        p { color: #666; line-height: 1.6; }
+                        .error { color: #e74c3c; font-size: 14px; margin-top: 10px; }
+                        .btn {
+                            display: inline-block;
+                            margin-top: 20px;
+                            padding: 12px 30px;
+                            background: #667eea;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 8px;
+                            font-weight: 500;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="card">
+                        <h1>Verification Failed</h1>
+                        <p>We couldn't verify your email. The link may have expired or already been used.</p>
+                        <p class="error">%s</p>
+                        <a href="/" class="btn">Go to Homepage</a>
+                    </div>
+                </body>
+                </html>
+                """.formatted(e.getMessage());
+            return ResponseEntity.badRequest().body(html);
+        }
+    }
+
     @PostMapping("/verify-email")
-    @Operation(summary = "Verify email with token")
-    public ResponseEntity<ApiResponse<Void>> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+    @Operation(summary = "Verify email with token (POST - for API)")
+    public ResponseEntity<ApiResponse<Void>> verifyEmailPost(@Valid @RequestBody VerifyEmailRequest request) {
         authService.verifyEmail(request.getToken());
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .message("Email verified successfully")

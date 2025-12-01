@@ -57,15 +57,16 @@ CREATE TRIGGER trg_themes_updated BEFORE UPDATE ON themes
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE IF NOT EXISTS profiles (
-                                        id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                                        user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                                        name        text NOT NULL,
-                                        slug        text NOT NULL UNIQUE,
-                                        privacy     privacy_level NOT NULL DEFAULT 'public',
-                                        theme_id    uuid REFERENCES themes(id),
-                                        created_at  timestamptz NOT NULL DEFAULT now(),
-                                        updated_at  timestamptz NOT NULL DEFAULT now()
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name        text NOT NULL,
+    slug        text NOT NULL UNIQUE,
+    privacy     text NOT NULL DEFAULT 'public',
+    theme_id    uuid REFERENCES themes(id),
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    updated_at  timestamptz NOT NULL DEFAULT now()
 );
+
 CREATE INDEX IF NOT EXISTS idx_profiles_user ON profiles(user_id);
 CREATE TRIGGER trg_profiles_updated BEFORE UPDATE ON profiles
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -171,15 +172,15 @@ CREATE INDEX IF NOT EXISTS idx_profile_media_role ON profile_media(profile_id, r
 
 -- Publications (versioned snapshots)
 CREATE TABLE IF NOT EXISTS publications (
-                                            id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                                            profile_id    uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-                                            status        publication_status NOT NULL DEFAULT 'draft',
-                                            is_active     boolean NOT NULL DEFAULT false, -- max 1 per profile
-                                            version       int NOT NULL DEFAULT 1,
-                                            snapshot      jsonb NOT NULL DEFAULT '{}'::jsonb,
-                                            published_at  timestamptz,
-                                            created_at    timestamptz NOT NULL DEFAULT now(),
-                                            UNIQUE (profile_id, version)
+    id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id    uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    status        text NOT NULL DEFAULT 'draft',
+    is_active     boolean NOT NULL DEFAULT false, -- max 1 per profile
+    version       int NOT NULL DEFAULT 1,
+    snapshot      jsonb NOT NULL DEFAULT '{}'::jsonb,
+    published_at  timestamptz,
+    created_at    timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (profile_id, version)
 );
 CREATE INDEX IF NOT EXISTS idx_publications_profile ON publications(profile_id);
 CREATE INDEX IF NOT EXISTS idx_publications_active ON publications(profile_id) WHERE is_active;
