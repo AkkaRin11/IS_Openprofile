@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import ru.akarpo.openprofile.is_openprofile.domain.profile.Profile;
+import ru.akarpo.openprofile.is_openprofile.enm.Role;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -27,6 +28,12 @@ public class User {
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)
     private UUID id;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    @Builder.Default
+    private Role role = Role.USER;
 
     @Column(nullable = false, unique = true)
     private String email;

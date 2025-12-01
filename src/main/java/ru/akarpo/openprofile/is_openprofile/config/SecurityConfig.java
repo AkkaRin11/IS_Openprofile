@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/themes/**").permitAll()
                 .requestMatchers("/api/widget-types/**").permitAll()
                 .requestMatchers("/api/external-services/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
