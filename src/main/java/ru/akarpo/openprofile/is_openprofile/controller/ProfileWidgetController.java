@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,17 +14,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profile-widgets")
 @RequiredArgsConstructor
+@Tag(name = "Создание профиля", description = "Управление конкретными экземплярами виджетов в профиле")
 public class ProfileWidgetController {
 
     private final ProfileWidgetService profileWidgetService;
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ProfileWidgetDTO>>> getAllProfileWidgets() {
-        List<ProfileWidgetDTO> widgets = profileWidgetService.findAll();
-        return ResponseEntity.ok(ApiResponse.<List<ProfileWidgetDTO>>builder()
-                .data(widgets)
-                .build());
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProfileWidgetDTO>> getProfileWidgetById(@PathVariable UUID id) {

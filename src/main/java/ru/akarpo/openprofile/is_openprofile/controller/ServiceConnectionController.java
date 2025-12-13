@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,17 +14,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/service-connections")
 @RequiredArgsConstructor
+@Tag(name = "Интеграции", description = "Подключения к внешним сервисам и синхронизация")
 public class ServiceConnectionController {
 
     private final ServiceConnectionService serviceConnectionService;
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ServiceConnectionDTO>>> getAllConnections() {
-        List<ServiceConnectionDTO> connections = serviceConnectionService.findAll();
-        return ResponseEntity.ok(ApiResponse.<List<ServiceConnectionDTO>>builder()
-                .data(connections)
-                .build());
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ServiceConnectionDTO>> getConnectionById(@PathVariable UUID id) {

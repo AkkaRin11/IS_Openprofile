@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,17 +14,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
+@Tag(name = "Медиа", description = "Загрузка и обработка изображений")
 public class MediaAssetController {
 
     private final MediaAssetService mediaAssetService;
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<MediaAssetDTO>>> getAllMedia() {
-        List<MediaAssetDTO> media = mediaAssetService.findAll();
-        return ResponseEntity.ok(ApiResponse.<List<MediaAssetDTO>>builder()
-                .data(media)
-                .build());
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MediaAssetDTO>> getMediaById(@PathVariable UUID id) {

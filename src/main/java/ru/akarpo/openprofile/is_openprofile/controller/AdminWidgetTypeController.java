@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin/widget-types")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Администрирование", description = "Административные операции")
 public class AdminWidgetTypeController {
 
     private final WidgetTypeService widgetTypeService;
@@ -37,7 +39,7 @@ public class AdminWidgetTypeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WidgetTypeDTO>> update(@PathVariable UUID id,
-                                                             @RequestBody WidgetTypeDTO dto) {
+            @RequestBody WidgetTypeDTO dto) {
         dto.setId(id);
         WidgetTypeDTO saved = widgetTypeService.save(dto);
         return ResponseEntity.ok(ApiResponse.<WidgetTypeDTO>builder()

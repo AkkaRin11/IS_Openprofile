@@ -1,5 +1,7 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profiles")
 @RequiredArgsConstructor
+@Tag(name = "Профили", description = "Управление профилями пользователей (CRUD)")
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -39,19 +42,13 @@ public class ProfileController {
         try {
             return PrivacyLevel.valueOf(privacy.toUpperCase().trim());
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid privacy level: " + privacy + ". Allowed values: public, unlisted, private");
+            throw new BadRequestException(
+                    "Invalid privacy level: " + privacy + ". Allowed values: public, unlisted, private");
         }
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ProfileDTO>>> getAllProfiles() {
-        List<ProfileDTO> profiles = profileService.findAll();
-        return ResponseEntity.ok(ApiResponse.<List<ProfileDTO>>builder()
-                .data(profiles)
-                .build());
-    }
-
     @GetMapping("/{id}")
+    @Operation(summary = "Получить профиль по ID", description = "Возвращает детали профиля по его уникальному UUID.")
     public ResponseEntity<ApiResponse<ProfileDTO>> getProfileById(@PathVariable UUID id) {
         return profileService.findById(id)
                 .map(profile -> ResponseEntity.ok(ApiResponse.<ProfileDTO>builder()
@@ -61,6 +58,7 @@ public class ProfileController {
     }
 
     @GetMapping("/slug/{slug}")
+    @Operation(summary = "Получить профиль по Slug", description = "Возвращает детали профиля по его уникальному URL slug.")
     public ResponseEntity<ApiResponse<ProfileDTO>> getProfileBySlug(@PathVariable String slug) {
         return profileService.findBySlug(slug)
                 .map(profile -> ResponseEntity.ok(ApiResponse.<ProfileDTO>builder()
@@ -70,6 +68,7 @@ public class ProfileController {
     }
 
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Получить профили по ID пользователя", description = "Возвращает все профили, принадлежащие конкретному пользователю.")
     public ResponseEntity<ApiResponse<List<ProfileDTO>>> getProfilesByUser(@PathVariable UUID userId) {
         List<ProfileDTO> profiles = profileService.findByUserId(userId);
         return ResponseEntity.ok(ApiResponse.<List<ProfileDTO>>builder()
@@ -78,6 +77,7 @@ public class ProfileController {
     }
 
     @GetMapping("/me")
+    @Operation(summary = "Получить мои профили", description = "Возвращает все профили текущего аутентифицированного пользователя.")
     public ResponseEntity<ApiResponse<List<ProfileDTO>>> getMyProfiles() {
         User user = getCurrentUser();
         List<ProfileDTO> profiles = profileService.findByUserId(user.getId());
@@ -87,6 +87,7 @@ public class ProfileController {
     }
 
     @PostMapping
+    @Operation(summary = "Создать профиль", description = "Создает новый профиль для текущего аутентифицированного пользователя.")
     public ResponseEntity<ApiResponse<ProfileDTO>> createProfile(@RequestBody CreateProfileRequest request) {
         User user = getCurrentUser();
 
@@ -105,15 +106,17 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Обновить профиль", description = "Обновляет существующий профиль. Будут обновлены только поля, указанные в теле запроса.")
     public ResponseEntity<ApiResponse<ProfileDTO>> updateProfile(@PathVariable UUID id,
-                                                                 @RequestBody UpdateProfileRequest request) {
+            @RequestBody UpdateProfileRequest request) {
         return profileService.findById(id)
                 .map(existing -> {
                     ProfileDTO updated = ProfileDTO.builder()
                             .id(id)
                             .name(request.getName() != null ? request.getName() : existing.getName())
                             .slug(existing.getSlug())
-                            .privacy(request.getPrivacy() != null ? parsePrivacyLevel(request.getPrivacy()) : existing.getPrivacy())
+                            .privacy(request.getPrivacy() != null ? parsePrivacyLevel(request.getPrivacy())
+                                    : existing.getPrivacy())
                             .themeId(request.getThemeId() != null ? request.getThemeId() : existing.getThemeId())
                             .userId(existing.getUserId())
                             .createdAt(existing.getCreatedAt())
@@ -128,6 +131,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить профиль", description = "Безвозвратно удаляет профиль и все связанные с ним данные.")
     public ResponseEntity<ApiResponse<Void>> deleteProfile(@PathVariable UUID id) {
         if (profileService.findById(id).isPresent()) {
             profileService.deleteById(id);

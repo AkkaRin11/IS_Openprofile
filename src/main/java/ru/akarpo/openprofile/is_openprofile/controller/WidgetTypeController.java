@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,33 +14,34 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/widget-types")
 @RequiredArgsConstructor
+@Tag(name = "Справочник", description = "Справочные данные: темы, типы виджетов, внешние сервисы")
 public class WidgetTypeController {
 
-    private final WidgetTypeService widgetTypeService;
+        private final WidgetTypeService widgetTypeService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<WidgetTypeDTO>>> getAllWidgetTypes() {
-        List<WidgetTypeDTO> widgetTypes = widgetTypeService.findAll();
-        return ResponseEntity.ok(ApiResponse.<List<WidgetTypeDTO>>builder()
-                .data(widgetTypes)
-                .build());
-    }
+        @GetMapping
+        public ResponseEntity<ApiResponse<List<WidgetTypeDTO>>> getAllWidgetTypes() {
+                List<WidgetTypeDTO> widgetTypes = widgetTypeService.findAll();
+                return ResponseEntity.ok(ApiResponse.<List<WidgetTypeDTO>>builder()
+                                .data(widgetTypes)
+                                .build());
+        }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<WidgetTypeDTO>> getWidgetTypeById(@PathVariable UUID id) {
-        return widgetTypeService.findById(id)
-                .map(widgetType -> ResponseEntity.ok(ApiResponse.<WidgetTypeDTO>builder()
-                        .data(widgetType)
-                        .build()))
-                .orElse(ResponseEntity.notFound().build());
-    }
+        @GetMapping("/{id}")
+        public ResponseEntity<ApiResponse<WidgetTypeDTO>> getWidgetTypeById(@PathVariable UUID id) {
+                return widgetTypeService.findById(id)
+                                .map(widgetType -> ResponseEntity.ok(ApiResponse.<WidgetTypeDTO>builder()
+                                                .data(widgetType)
+                                                .build()))
+                                .orElse(ResponseEntity.notFound().build());
+        }
 
-    @GetMapping("/code/{code}")
-    public ResponseEntity<ApiResponse<WidgetTypeDTO>> getWidgetTypeByCode(@PathVariable String code) {
-        return widgetTypeService.findByCode(code)
-                .map(widgetType -> ResponseEntity.ok(ApiResponse.<WidgetTypeDTO>builder()
-                        .data(widgetType)
-                        .build()))
-                .orElse(ResponseEntity.notFound().build());
-    }
+        @GetMapping("/code/{code}")
+        public ResponseEntity<ApiResponse<WidgetTypeDTO>> getWidgetTypeByCode(@PathVariable String code) {
+                return widgetTypeService.findByCode(code)
+                                .map(widgetType -> ResponseEntity.ok(ApiResponse.<WidgetTypeDTO>builder()
+                                                .data(widgetType)
+                                                .build()))
+                                .orElse(ResponseEntity.notFound().build());
+        }
 }

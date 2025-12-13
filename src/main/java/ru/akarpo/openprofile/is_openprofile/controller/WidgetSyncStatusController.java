@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/widget-sync")
 @RequiredArgsConstructor
-@Tag(name = "Widget Sync", description = "Widget synchronization status")
+@Tag(name = "Интеграции", description = "Подключения к внешним сервисам и синхронизация")
 public class WidgetSyncStatusController {
 
     private final WidgetSyncService widgetSyncService;
