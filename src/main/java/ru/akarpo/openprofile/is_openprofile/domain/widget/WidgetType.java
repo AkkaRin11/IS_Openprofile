@@ -38,8 +38,10 @@ public class WidgetType {
     @Column(name = "schema_json", nullable = false, columnDefinition = "jsonb")
     private JsonNode schemaJson;
 
+    @Column(name = "api_endpoint")
+    private String apiEndpoint;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 }
-

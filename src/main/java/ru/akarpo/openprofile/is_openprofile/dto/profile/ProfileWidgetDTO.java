@@ -20,6 +20,7 @@ public class ProfileWidgetDTO {
     private String title;
     private JsonNode settings;
     private JsonNode layout;
+    private JsonNode cachedData;
     private int position;
     private Instant createdAt;
     private Instant updatedAt;

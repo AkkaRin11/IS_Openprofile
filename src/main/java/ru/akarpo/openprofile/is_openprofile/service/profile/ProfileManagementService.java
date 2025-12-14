@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.akarpo.openprofile.is_openprofile.exception.BadRequestException;
 import ru.akarpo.openprofile.is_openprofile.exception.ResourceNotFoundException;
+import ru.akarpo.openprofile.is_openprofile.service.widget.WidgetSyncService;
 
 import java.util.UUID;
 
@@ -16,20 +17,21 @@ public class ProfileManagementService {
 
     @PersistenceContext
     private final EntityManager entityManager;
+    private final WidgetSyncService widgetSyncService;
 
     @Transactional
     public UUID addWidget(UUID profileId, String widgetCode, String title,
-                          String settingsJson, String layoutJson) {
+            String settingsJson, String layoutJson) {
         try {
             Object result = entityManager.createNativeQuery(
-                "SELECT add_widget(:profileId, :widgetCode, :title, " +
-                "CAST(:settings AS jsonb), CAST(:layout AS jsonb))")
-                .setParameter("profileId", profileId)
-                .setParameter("widgetCode", widgetCode)
-                .setParameter("title", title)
-                .setParameter("settings", settingsJson)
-                .setParameter("layout", layoutJson)
-                .getSingleResult();
+                    "SELECT add_widget(:profileId, :widgetCode, :title, " +
+                            "CAST(:settings AS jsonb), CAST(:layout AS jsonb))")
+                    .setParameter("profileId", profileId)
+                    .setParameter("widgetCode", widgetCode)
+                    .setParameter("title", title)
+                    .setParameter("settings", settingsJson)
+                    .setParameter("layout", layoutJson)
+                    .getSingleResult();
 
             return UUID.fromString(result.toString());
         } catch (Exception e) {
@@ -39,18 +41,18 @@ public class ProfileManagementService {
 
     @Transactional
     public UUID connectService(UUID userId, String serviceCode, String externalUserId,
-                              String accessToken, String refreshToken, String tokenExpiresAt) {
+            String accessToken, String refreshToken, String tokenExpiresAt) {
         try {
             Object result = entityManager.createNativeQuery(
-                "SELECT connect_service(:userId, :serviceCode, :externalUserId, " +
-                ":accessToken, :refreshToken, CAST(:tokenExpiresAt AS timestamptz))")
-                .setParameter("userId", userId)
-                .setParameter("serviceCode", serviceCode)
-                .setParameter("externalUserId", externalUserId)
-                .setParameter("accessToken", accessToken)
-                .setParameter("refreshToken", refreshToken)
-                .setParameter("tokenExpiresAt", tokenExpiresAt)
-                .getSingleResult();
+                    "SELECT connect_service(:userId, :serviceCode, :externalUserId, " +
+                            ":accessToken, :refreshToken, CAST(:tokenExpiresAt AS timestamptz))")
+                    .setParameter("userId", userId)
+                    .setParameter("serviceCode", serviceCode)
+                    .setParameter("externalUserId", externalUserId)
+                    .setParameter("accessToken", accessToken)
+                    .setParameter("refreshToken", refreshToken)
+                    .setParameter("tokenExpiresAt", tokenExpiresAt)
+                    .getSingleResult();
 
             return UUID.fromString(result.toString());
         } catch (Exception e) {
@@ -62,10 +64,12 @@ public class ProfileManagementService {
     public void bindWidgetToConnection(UUID widgetId, UUID connectionId) {
         try {
             entityManager.createNativeQuery(
-                "SELECT bind_widget_to_connection(:widgetId, :connectionId)")
-                .setParameter("widgetId", widgetId)
-                .setParameter("connectionId", connectionId)
-                .getSingleResult();
+                    "SELECT bind_widget_to_connection(:widgetId, :connectionId)")
+                    .setParameter("widgetId", widgetId)
+                    .setParameter("connectionId", connectionId)
+                    .getSingleResult();
+
+            widgetSyncService.createSyncStatus(widgetId);
         } catch (Exception e) {
             throw new BadRequestException("Failed to bind widget: " + e.getMessage());
         }
@@ -75,9 +79,9 @@ public class ProfileManagementService {
     public String publishProfile(UUID profileId) {
         try {
             Object result = entityManager.createNativeQuery(
-                "SELECT publish_profile(:profileId)")
-                .setParameter("profileId", profileId)
-                .getSingleResult();
+                    "SELECT publish_profile(:profileId)")
+                    .setParameter("profileId", profileId)
+                    .getSingleResult();
 
             return result.toString();
         } catch (Exception e) {
@@ -89,9 +93,9 @@ public class ProfileManagementService {
     public String getPublicProfile(String slug) {
         try {
             Object result = entityManager.createNativeQuery(
-                "SELECT get_public_profile(:slug)")
-                .setParameter("slug", slug)
-                .getSingleResult();
+                    "SELECT get_public_profile(:slug)")
+                    .setParameter("slug", slug)
+                    .getSingleResult();
 
             if (result == null) {
                 throw new ResourceNotFoundException("Profile", "slug", slug);

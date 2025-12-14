@@ -10,5 +10,9 @@ import java.util.UUID;
 @Repository
 public interface ProfileWidgetRepository extends JpaRepository<ProfileWidget, UUID> {
     List<ProfileWidget> findByProfileId(UUID profileId);
+
     List<ProfileWidget> findByProfileIdOrderByPositionAsc(UUID profileId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT pw FROM ProfileWidget pw JOIN pw.bindings b")
+    List<ProfileWidget> findAllWithBindings();
 }

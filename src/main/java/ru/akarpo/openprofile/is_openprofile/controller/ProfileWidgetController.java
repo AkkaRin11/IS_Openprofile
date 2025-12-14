@@ -39,6 +39,22 @@ public class ProfileWidgetController {
                 .build());
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Обновить виджет", description = "Обновляет настройки, позицию или layout виджета.")
+    public ResponseEntity<ApiResponse<ProfileWidgetDTO>> updateProfileWidget(
+            @PathVariable UUID id,
+            @RequestBody ProfileWidgetDTO dto) {
+        if (profileWidgetService.findById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        dto.setId(id);
+        ProfileWidgetDTO updated = profileWidgetService.save(dto);
+        return ResponseEntity.ok(ApiResponse.<ProfileWidgetDTO>builder()
+                .message("Profile widget updated successfully")
+                .data(updated)
+                .build());
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить виджет", description = "Удаляет виджет из профиля.")
     public ResponseEntity<ApiResponse<Void>> deleteProfileWidget(@PathVariable UUID id) {

@@ -17,56 +17,55 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "profile_widgets",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"profile_id", "position"})
-        }
-)
+@Table(name = "profile_widgets", uniqueConstraints = {
+                @UniqueConstraint(columnNames = { "profile_id", "position" })
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProfileWidget {
 
-    @Id
-    @GeneratedValue
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
-    private UUID id;
+        @Id
+        @GeneratedValue
+        @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+        private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "profile_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_widget_profile"))
-    private Profile profile;
+        @ManyToOne(optional = false)
+        @JoinColumn(name = "profile_id", nullable = false, foreignKey = @ForeignKey(name = "fk_widget_profile"))
+        private Profile profile;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "widget_type_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_widget_type"))
-    private WidgetType widgetType;
+        @ManyToOne(optional = false)
+        @JoinColumn(name = "widget_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_widget_type"))
+        private WidgetType widgetType;
 
-    private String title;
+        private String title;
 
-    @Type(JsonType.class)
-    @Column(nullable = false, columnDefinition = "jsonb")
-    private JsonNode settings;
+        @Type(JsonType.class)
+        @Column(nullable = false, columnDefinition = "jsonb")
+        private JsonNode settings;
 
-    @Type(JsonType.class)
-    @Column(nullable = false, columnDefinition = "jsonb")
-    private JsonNode layout;
+        @Type(JsonType.class)
+        @Column(nullable = false, columnDefinition = "jsonb")
+        private JsonNode layout;
 
-    @Column(nullable = false)
-    private int position;
+        @Type(JsonType.class)
+        @Column(name = "cached_data", columnDefinition = "jsonb")
+        private JsonNode cachedData;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+        @Column(nullable = false)
+        private int position;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+        @CreationTimestamp
+        @Column(name = "created_at", nullable = false, updatable = false)
+        private Instant createdAt;
 
-    /** widget_bindings.profile_widget_id */
-    @OneToMany(mappedBy = "profileWidget", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<WidgetBinding> bindings = new ArrayList<>();
+        @UpdateTimestamp
+        @Column(name = "updated_at", nullable = false)
+        private Instant updatedAt;
+
+        /** widget_bindings.profile_widget_id */
+        @OneToMany(mappedBy = "profileWidget", cascade = CascadeType.ALL, orphanRemoval = true)
+        @Builder.Default
+        private List<WidgetBinding> bindings = new ArrayList<>();
 }

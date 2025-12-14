@@ -19,5 +19,6 @@ public class WidgetTypeDTO {
     private String name;
     private boolean supportsBinding;
     private JsonNode schemaJson;
+    private String apiEndpoint;
     private Instant createdAt;
 }

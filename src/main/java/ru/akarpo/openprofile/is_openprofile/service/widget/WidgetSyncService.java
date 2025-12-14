@@ -23,22 +23,50 @@ public class WidgetSyncService {
     private final WidgetSyncStatusRepository syncStatusRepository;
     private final ProfileWidgetRepository widgetRepository;
 
+    @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    @Transactional
+    public void initializeSyncStatuses() {
+        log.info("Initializing widget sync statuses...");
+        List<ProfileWidget> widgetsWithBindings = widgetRepository.findAllWithBindings();
+        int createdCount = 0;
+
+        for (ProfileWidget widget : widgetsWithBindings) {
+            if (syncStatusRepository.findByWidgetId(widget.getId()).isEmpty()) {
+                createSyncStatus(widget.getId());
+                createdCount++;
+            }
+        }
+
+        log.info("Initialized sync statuses. Created {} new statuses for {} bound widgets.", createdCount,
+                widgetsWithBindings.size());
+    }
+
     @Transactional
     public void createSyncStatus(UUID widgetId) {
         ProfileWidget widget = widgetRepository.findById(widgetId)
                 .orElseThrow(() -> new RuntimeException("Widget not found"));
 
-        log.info("Creating sync status for widget: {} (type: {})", widgetId, widget.getWidgetType().getCode());
+        log.info("Creating/updating sync status for widget: {} (type: {})", widgetId, widget.getWidgetType().getCode());
 
-        WidgetSyncStatus syncStatus = WidgetSyncStatus.builder()
-                .widget(widget)
-                .syncStatus("PENDING")
-                .retryCount(0)
-                .nextSyncAt(Instant.now())
-                .build();
+        WidgetSyncStatus syncStatus = syncStatusRepository.findByWidgetId(widgetId)
+                .orElse(null);
+
+        if (syncStatus == null) {
+            syncStatus = WidgetSyncStatus.builder()
+                    .widget(widget)
+                    .syncStatus("PENDING")
+                    .retryCount(0)
+                    .nextSyncAt(Instant.now())
+                    .build();
+            log.info("Creating new sync status for widget: {}", widgetId);
+        } else {
+            syncStatus.setSyncStatus("PENDING");
+            syncStatus.setNextSyncAt(Instant.now());
+            log.info("Updating existing sync status for widget: {}, resetting nextSyncAt to now", widgetId);
+        }
 
         syncStatusRepository.save(syncStatus);
-        log.info("Sync status created with ID: {} for widget: {}", syncStatus.getId(), widgetId);
+        log.info("Sync status saved with ID: {} for widget: {}", syncStatus.getId(), widgetId);
     }
 
     @Transactional
@@ -88,22 +116,90 @@ public class WidgetSyncService {
             try {
                 log.info("Starting sync for widget: {} (status: {})", widgetId, syncStatus.getSyncStatus());
 
-                // TODO: Здесь должна быть реальная логика синхронизации с внешним API
-                // Например:
-                // 1. Получить connection через widget.bindings
-                // 2. Взять accessToken из connection
-                // 3. Сделать HTTP запрос к API сервиса
-                // 4. Сохранить полученные данные
+                ProfileWidget widget = widgetRepository.findById(widgetId)
+                        .orElseThrow(() -> new RuntimeException("Widget not found: " + widgetId));
 
-                log.info("Sync completed successfully for widget: {}", widgetId);
+                String apiEndpoint = widget.getWidgetType().getApiEndpoint();
+                if (apiEndpoint == null || apiEndpoint.isBlank()) {
+                    log.warn("Widget type {} has no API endpoint, skipping sync", widget.getWidgetType().getCode());
+                    updateSyncStatus(widgetId, "SUCCESS", null);
+                    continue;
+                }
+
+                String accessToken = getAccessTokenForWidget(widget);
+                if (accessToken == null) {
+                    log.warn("No access token found for widget {}, skipping sync", widgetId);
+                    updateSyncStatus(widgetId, "SUCCESS", null);
+                    continue;
+                }
+
+                java.util.Map<String, Object> uriVariables = new java.util.HashMap<>();
+                if (widget.getSettings() != null && widget.getSettings().isObject()) {
+                    widget.getSettings().fields()
+                            .forEachRemaining(entry -> uriVariables.put(entry.getKey(), entry.getValue().asText()));
+                }
+
+                log.info("Fetching data from: {} with params: {}", apiEndpoint, uriVariables);
+                String responseData = fetchExternalData(apiEndpoint, accessToken, uriVariables);
+
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode cachedData = mapper.readTree(responseData);
+                widget.setCachedData(cachedData);
+                widgetRepository.save(widget);
+
+                log.info("Sync completed successfully for widget: {}, cached {} bytes", widgetId,
+                        responseData.length());
                 updateSyncStatus(widgetId, "SUCCESS", null);
+            } catch (IllegalArgumentException e) {
+                log.warn("Skipping sync for widget {}: Missing required settings for API URL - {}", widgetId,
+                        e.getMessage());
+                updateSyncStatus(widgetId, "ERROR", "Configuration error: " + e.getMessage());
             } catch (Exception e) {
-                log.error("Failed to sync widget: {} - Error: {}", widgetId, e.getMessage(), e);
+                log.error("Failed to sync widget {}: {}", widgetId, e.getMessage());
+                log.debug("Full stack trace for widget " + widgetId, e);
                 updateSyncStatus(widgetId, "ERROR", e.getMessage());
             }
         }
 
         log.info("Sync batch completed. Processed {} widget(s)", pendingSyncs.size());
+    }
+
+    private String getAccessTokenForWidget(ProfileWidget widget) {
+        if (widget.getBindings().isEmpty()) {
+            return null;
+        }
+        return widget.getBindings().get(0).getConnection().getAccessToken();
+    }
+
+    private String fetchExternalData(String apiEndpoint, String accessToken, java.util.Map<String, Object> uriVariables)
+            throws Exception {
+        org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+
+        if (apiEndpoint.contains("wakatime.com")) {
+            String auth = accessToken + ":";
+            String encodedAuth = java.util.Base64.getEncoder().encodeToString(auth.getBytes());
+            headers.set("Authorization", "Basic " + encodedAuth);
+            log.debug("Using Basic auth for WakaTime");
+        } else {
+            headers.set("Authorization", "Bearer " + accessToken);
+            log.debug("Using Bearer token");
+        }
+
+        org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
+
+        org.springframework.http.ResponseEntity<String> response = restTemplate.exchange(
+                apiEndpoint,
+                org.springframework.http.HttpMethod.GET,
+                entity,
+                String.class,
+                uriVariables);
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("API request failed with status: " + response.getStatusCode());
+        }
+
+        return response.getBody();
     }
 
     public List<WidgetSyncStatus> getStatusByProfile(UUID profileId) {
