@@ -180,7 +180,7 @@ public class AuthController {
     }
 
     @PostMapping("/enable-2fa")
-    @Operation(summary = "Включить 2FA", description = "Генерирует TOTP секрет для двухфакторной аутентификации. Пользователь должен отсканировать этот секрет в приложении-аутентификаторе.")
+    @Operation(summary = "Включить 2FA", description = "Генерирует TOTP секрет для двухфакторной аутентификации.")
     public ResponseEntity<ApiResponse<String>> enableTwoFactor() {
         String secret = authService.enableTwoFactor();
         return ResponseEntity.ok(ApiResponse.<String>builder()

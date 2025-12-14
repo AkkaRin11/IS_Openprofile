@@ -2,6 +2,7 @@ package ru.akarpo.openprofile.is_openprofile.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.Type;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,12 +16,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "publications",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"profile_id", "version"})
-        }
-)
+@Table(name = "publications", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "profile_id", "version" })
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,8 +31,7 @@ public class Publication {
     private UUID id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "profile_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_publication_profile"))
+    @JoinColumn(name = "profile_id", nullable = false, foreignKey = @ForeignKey(name = "fk_publication_profile"))
     private Profile profile;
 
     @Convert(converter = PublicationStatusConverter.class)

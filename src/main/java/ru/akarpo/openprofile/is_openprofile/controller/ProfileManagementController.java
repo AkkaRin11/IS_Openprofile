@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profile-management")
 @RequiredArgsConstructor
-@Tag(name = "Создание профиля", description = "Операции для управления профилями с использованием функций PostgreSQL")
+@Tag(name = "Создание профиля", description = "Операции для управления профилями")
 public class ProfileManagementController {
 
         private final ProfileManagementService profileManagementService;
@@ -86,11 +86,18 @@ public class ProfileManagementController {
 
         @GetMapping("/public/{slug}")
         @Operation(summary = "Получить публичный профиль", description = "Возвращает публичное представление профиля по его slug. Возвращает агрегированные данные профиля, включая виджеты и тему.")
-        public ResponseEntity<ApiResponse<String>> getPublicProfile(@PathVariable String slug) {
+        public ResponseEntity<ApiResponse<com.fasterxml.jackson.databind.JsonNode>> getPublicProfile(
+                        @PathVariable String slug) {
                 String snapshot = profileManagementService.getPublicProfile(slug);
 
-                return ResponseEntity.ok(ApiResponse.<String>builder()
-                                .data(snapshot)
-                                .build());
+                try {
+                        com.fasterxml.jackson.databind.JsonNode jsonNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                                        .readTree(snapshot);
+                        return ResponseEntity.ok(ApiResponse.<com.fasterxml.jackson.databind.JsonNode>builder()
+                                        .data(jsonNode)
+                                        .build());
+                } catch (Exception e) {
+                        throw new RuntimeException("Failed to parse snapshot JSON", e);
+                }
         }
 }

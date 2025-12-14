@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
-@Tag(name = "Медиа", description = "Загрузка и обработка изображений")
+@Tag(name = "Медиа-активы", description = "Управление изображениями и файлами пользователей")
 public class MediaAssetController {
 
     private final MediaAssetService mediaAssetService;
 
     @GetMapping("/{id}")
+    @Operation(summary = "Получить медиа-файл", description = "Возвращает метаданные медиа-файла (URL, тип, размер) по его ID.")
     public ResponseEntity<ApiResponse<MediaAssetDTO>> getMediaById(@PathVariable UUID id) {
         return mediaAssetService.findById(id)
                 .map(media -> ResponseEntity.ok(ApiResponse.<MediaAssetDTO>builder()
@@ -29,6 +31,7 @@ public class MediaAssetController {
     }
 
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Медиа-файлы пользователя", description = "Возвращает список всех медиа-файлов, загруженных конкретным пользователем.")
     public ResponseEntity<ApiResponse<List<MediaAssetDTO>>> getMediaByUser(@PathVariable UUID userId) {
         List<MediaAssetDTO> media = mediaAssetService.findByUserId(userId);
         return ResponseEntity.ok(ApiResponse.<List<MediaAssetDTO>>builder()
@@ -37,6 +40,7 @@ public class MediaAssetController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить медиа-файл", description = "Удаляет запись о медиа-файле и сам файл из хранилища.")
     public ResponseEntity<ApiResponse<Void>> deleteMedia(@PathVariable UUID id) {
         if (mediaAssetService.findById(id).isPresent()) {
             mediaAssetService.deleteById(id);

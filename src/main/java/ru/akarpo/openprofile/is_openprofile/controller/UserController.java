@@ -17,25 +17,25 @@ import java.util.UUID;
 @Tag(name = "Пользователи", description = "Управление учетными записями пользователей")
 public class UserController {
 
-        private final UserService userService;
+    private final UserService userService;
 
-        @GetMapping("/{id}")
-        @Operation(summary = "Получить пользователя по ID", description = "Возвращает публичную информацию о пользователе по его уникальному ID.")
-        public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable UUID id) {
-                return userService.findById(id)
-                                .map(user -> ResponseEntity.ok(ApiResponse.<UserDTO>builder()
-                                                .data(user)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/{id}")
+    @Operation(summary = "Получить пользователя по ID", description = "Возвращает публичную информацию о пользователе по его уникальному ID.")
+    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable UUID id) {
+        return userService.findById(id)
+                .map(user -> ResponseEntity.ok(ApiResponse.<UserDTO>builder()
+                        .data(user)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-        @GetMapping("/email/{email}")
-        @Operation(summary = "Получить пользователя по Email", description = "Возвращает публичную информацию о пользователе по его email адресу.")
-        public ResponseEntity<ApiResponse<UserDTO>> getUserByEmail(@PathVariable String email) {
-                return userService.findByEmail(email)
-                                .map(user -> ResponseEntity.ok(ApiResponse.<UserDTO>builder()
-                                                .data(user)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/email/{email}")
+    @Operation(summary = "Получить пользователя по Email", description = "Возвращает публичную информацию о пользователе по его email адресу.")
+    public ResponseEntity<ApiResponse<UserDTO>> getUserByEmail(@PathVariable String email) {
+        return userService.findByEmail(email)
+                .map(user -> ResponseEntity.ok(ApiResponse.<UserDTO>builder()
+                        .data(user)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

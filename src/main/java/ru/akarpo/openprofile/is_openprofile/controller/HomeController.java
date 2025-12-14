@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class HomeController {
 
         @GetMapping("/")
+        @Operation(summary = "Главная страница", description = "Возвращает информацию о версии API и ссылку на документацию.")
         public ResponseEntity<ApiResponse<Map<String, String>>> home() {
                 return ResponseEntity.ok(ApiResponse.<Map<String, String>>builder()
                                 .message("OpenProfile API")
@@ -23,6 +25,7 @@ public class HomeController {
         }
 
         @GetMapping("/api")
+        @Operation(summary = "Обзор API", description = "Возвращает список основных эндопоинтов API.")
         public ResponseEntity<ApiResponse<Map<String, String>>> api() {
                 return ResponseEntity.ok(ApiResponse.<Map<String, String>>builder()
                                 .message("OpenProfile API")

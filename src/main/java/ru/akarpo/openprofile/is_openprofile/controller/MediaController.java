@@ -21,7 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
-@Tag(name = "Медиа", description = "Загрузка и обработка изображений")
+@Tag(name = "Медиа-сервис", description = "Операции с изображениями: загрузка, обрезка, сжатие")
 public class MediaController {
 
         private final MediaUploadService mediaUploadService;
@@ -34,7 +34,7 @@ public class MediaController {
         }
 
         @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        @Operation(summary = "Upload image file")
+        @Operation(summary = "Загрузить изображение", description = "Загружает изображение на сервер, сохраняет его и создает запись медиа-актива.")
         public ResponseEntity<ApiResponse<MediaAssetDTO>> uploadImage(
                         @RequestParam("file") MultipartFile file,
                         @RequestParam(value = "altText", required = false) String altText) {
@@ -49,7 +49,7 @@ public class MediaController {
         }
 
         @PostMapping("/{mediaId}/crop")
-        @Operation(summary = "Crop image")
+        @Operation(summary = "Обрезать изображение", description = "Создает обрезанную версию изображения. Принимает координаты (x, y) и размер (width, height) области.")
         public ResponseEntity<ApiResponse<MediaAssetDTO>> cropImage(
                         @PathVariable UUID mediaId,
                         @RequestParam int x,
@@ -66,7 +66,7 @@ public class MediaController {
         }
 
         @PostMapping("/{mediaId}/compress")
-        @Operation(summary = "Compress image")
+        @Operation(summary = "Сжать изображение", description = "Создает сжатую версию изображения с указанным качеством (от 0.0 до 1.0).")
         public ResponseEntity<ApiResponse<MediaAssetDTO>> compressImage(
                         @PathVariable UUID mediaId,
                         @RequestParam(defaultValue = "0.8") float quality) {
@@ -80,7 +80,7 @@ public class MediaController {
         }
 
         @GetMapping("/{mediaId}/download")
-        @Operation(summary = "Download media file")
+        @Operation(summary = "Скачать файл", description = "Скачивает бинарный контент медиа-файла.")
         public ResponseEntity<byte[]> downloadMedia(@PathVariable UUID mediaId) {
                 byte[] fileContent = mediaUploadService.getMediaFile(mediaId);
 

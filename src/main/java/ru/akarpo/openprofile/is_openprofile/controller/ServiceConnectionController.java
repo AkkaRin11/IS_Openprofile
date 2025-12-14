@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class ServiceConnectionController {
     private final ServiceConnectionService serviceConnectionService;
 
     @GetMapping("/{id}")
+    @Operation(summary = "Получить подключение", description = "Возвращает детали подключения к внешнему сервису по ID.")
     public ResponseEntity<ApiResponse<ServiceConnectionDTO>> getConnectionById(@PathVariable UUID id) {
         return serviceConnectionService.findById(id)
                 .map(connection -> ResponseEntity.ok(ApiResponse.<ServiceConnectionDTO>builder()
@@ -29,6 +31,7 @@ public class ServiceConnectionController {
     }
 
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Подключения пользователя", description = "Возвращает список всех подключенных внешних сервисов пользователя.")
     public ResponseEntity<ApiResponse<List<ServiceConnectionDTO>>> getConnectionsByUser(@PathVariable UUID userId) {
         List<ServiceConnectionDTO> connections = serviceConnectionService.findByUserId(userId);
         return ResponseEntity.ok(ApiResponse.<List<ServiceConnectionDTO>>builder()
@@ -37,6 +40,7 @@ public class ServiceConnectionController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить подключение", description = "Разрывает связь с внешним сервисом и удаляет сохраненные токены.")
     public ResponseEntity<ApiResponse<Void>> deleteConnection(@PathVariable UUID id) {
         if (serviceConnectionService.findById(id).isPresent()) {
             serviceConnectionService.deleteById(id);

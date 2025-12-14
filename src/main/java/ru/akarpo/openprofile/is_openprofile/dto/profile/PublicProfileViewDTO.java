@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -18,5 +18,16 @@ public class PublicProfileViewDTO {
     private String slug;
     private UUID profileId;
     private Instant publishedAt;
-    private Map<String, Object> snapshot;
+    private JsonNode snapshot;
+
+    public JsonNode getSnapshot() {
+        if (snapshot != null && snapshot.isTextual()) {
+            try {
+                return new com.fasterxml.jackson.databind.ObjectMapper().readTree(snapshot.asText());
+            } catch (Exception e) {
+                return snapshot;
+            }
+        }
+        return snapshot;
+    }
 }

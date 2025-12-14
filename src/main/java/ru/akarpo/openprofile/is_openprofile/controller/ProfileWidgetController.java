@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profile-widgets")
 @RequiredArgsConstructor
-@Tag(name = "Создание профиля", description = "Управление конкретными экземплярами виджетов в профиле")
+@Tag(name = "Виджеты профиля", description = "Управление конкретными виджетами внутри профиля")
 public class ProfileWidgetController {
 
     private final ProfileWidgetService profileWidgetService;
 
     @GetMapping("/{id}")
+    @Operation(summary = "Получить виджет", description = "Возвращает детали конкретного виджета по ID.")
     public ResponseEntity<ApiResponse<ProfileWidgetDTO>> getProfileWidgetById(@PathVariable UUID id) {
         return profileWidgetService.findById(id)
                 .map(widget -> ResponseEntity.ok(ApiResponse.<ProfileWidgetDTO>builder()
@@ -29,6 +31,7 @@ public class ProfileWidgetController {
     }
 
     @GetMapping("/profile/{profileId}")
+    @Operation(summary = "Получить виджеты профиля", description = "Возвращает список всех виджетов, добавленных в указанный профиль.")
     public ResponseEntity<ApiResponse<List<ProfileWidgetDTO>>> getWidgetsByProfile(@PathVariable UUID profileId) {
         List<ProfileWidgetDTO> widgets = profileWidgetService.findByProfileId(profileId);
         return ResponseEntity.ok(ApiResponse.<List<ProfileWidgetDTO>>builder()
@@ -37,6 +40,7 @@ public class ProfileWidgetController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить виджет", description = "Удаляет виджет из профиля.")
     public ResponseEntity<ApiResponse<Void>> deleteProfileWidget(@PathVariable UUID id) {
         if (profileWidgetService.findById(id).isPresent()) {
             profileWidgetService.deleteById(id);

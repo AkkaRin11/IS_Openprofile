@@ -1,5 +1,6 @@
 package ru.akarpo.openprofile.is_openprofile.domain.profile;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +13,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -39,5 +39,5 @@ public class PublicProfileView {
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb", name = "snapshot")
-    private Map<String, Object> snapshot;
+    private JsonNode snapshot;
 }

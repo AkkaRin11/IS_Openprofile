@@ -23,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profiles")
 @RequiredArgsConstructor
-@Tag(name = "Профили", description = "Управление профилями пользователей (CRUD)")
+@Tag(name = "Профили", description = "Управление профилями пользователей")
 public class ProfileController {
 
     private final ProfileService profileService;

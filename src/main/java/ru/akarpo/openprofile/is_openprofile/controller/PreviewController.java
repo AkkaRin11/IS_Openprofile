@@ -15,13 +15,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/preview")
 @RequiredArgsConstructor
-@Tag(name = "Публичный просмотр", description = "Публично доступные данные профилей и предпросмотр")
+@Tag(name = "Предпросмотр", description = "Генерация предварительного просмотра профилей")
 public class PreviewController {
 
     private final PreviewService previewService;
 
     @GetMapping("/profile/{profileId}")
-    @Operation(summary = "Get profile preview")
+    @Operation(summary = "Предпросмотр профиля", description = "Генерирует JSON-представление профиля для предпросмотра, объединяя настройки темы и виджетов.")
     public ResponseEntity<ApiResponse<Map<String, Object>>> previewProfile(@PathVariable UUID profileId) {
         Map<String, Object> preview = previewService.generatePreview(profileId);
         return ResponseEntity.ok(ApiResponse.<Map<String, Object>>builder()
@@ -30,7 +30,7 @@ public class PreviewController {
     }
 
     @GetMapping("/profile/{profileId}/device/{deviceType}")
-    @Operation(summary = "Get device-specific preview", description = "Device types: desktop, tablet, mobile")
+    @Operation(summary = "Предпросмотр для устройства", description = "Генерирует предпросмотр под конкретное устройство.")
     public ResponseEntity<ApiResponse<Map<String, Object>>> previewProfileByDevice(
             @PathVariable UUID profileId,
             @PathVariable String deviceType) {
