@@ -68,4 +68,7 @@ public class ProfileWidget {
         @OneToMany(mappedBy = "profileWidget", cascade = CascadeType.ALL, orphanRemoval = true)
         @Builder.Default
         private List<WidgetBinding> bindings = new ArrayList<>();
+
+        @OneToOne(mappedBy = "widget", cascade = CascadeType.ALL, orphanRemoval = true)
+        private ru.akarpo.openprofile.is_openprofile.domain.widget.WidgetSyncStatus syncStatus;
 }
