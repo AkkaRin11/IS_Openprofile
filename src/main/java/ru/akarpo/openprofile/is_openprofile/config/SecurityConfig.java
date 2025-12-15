@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/themes/**").permitAll()
                         .requestMatchers("/api/widget-types/**").permitAll()
                         .requestMatchers("/api/external-services/**").permitAll()
+                        .requestMatchers("/api/media/*/view").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("USER", "ADMIN"))
                 .sessionManagement(session -> session

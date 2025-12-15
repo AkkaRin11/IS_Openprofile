@@ -18,35 +18,35 @@ import java.util.UUID;
 @Tag(name = "Публикации", description = "История версий и управление публикациями профиля")
 public class PublicationController {
 
-        private final PublicationService publicationService;
+    private final PublicationService publicationService;
 
-        @GetMapping("/{id}")
-        @Operation(summary = "Получить публикацию", description = "Возвращает детали конкретной версии публикации по её ID.")
-        public ResponseEntity<ApiResponse<PublicationDTO>> getPublicationById(@PathVariable UUID id) {
-                return publicationService.findById(id)
-                                .map(publication -> ResponseEntity.ok(ApiResponse.<PublicationDTO>builder()
-                                                .data(publication)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/{id}")
+    @Operation(summary = "Получить публикацию", description = "Возвращает детали конкретной версии публикации по её ID.")
+    public ResponseEntity<ApiResponse<PublicationDTO>> getPublicationById(@PathVariable UUID id) {
+        return publicationService.findById(id)
+                .map(publication -> ResponseEntity.ok(ApiResponse.<PublicationDTO>builder()
+                        .data(publication)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-        @GetMapping("/profile/{profileId}")
-        @Operation(summary = "История публикаций", description = "Возвращает полный список версий публикаций для указанного профиля.")
-        public ResponseEntity<ApiResponse<List<PublicationDTO>>> getPublicationsByProfile(
-                        @PathVariable UUID profileId) {
-                List<PublicationDTO> publications = publicationService.findByProfileId(profileId);
-                return ResponseEntity.ok(ApiResponse.<List<PublicationDTO>>builder()
-                                .data(publications)
-                                .build());
-        }
+    @GetMapping("/profile/{profileId}")
+    @Operation(summary = "История публикаций", description = "Возвращает полный список версий публикаций для указанного профиля.")
+    public ResponseEntity<ApiResponse<List<PublicationDTO>>> getPublicationsByProfile(
+            @PathVariable UUID profileId) {
+        List<PublicationDTO> publications = publicationService.findByProfileId(profileId);
+        return ResponseEntity.ok(ApiResponse.<List<PublicationDTO>>builder()
+                .data(publications)
+                .build());
+    }
 
-        @GetMapping("/profile/{profileId}/active")
-        @Operation(summary = "Текущая публикация", description = "Возвращает текущую активную (опубликованную) версию профиля.")
-        public ResponseEntity<ApiResponse<PublicationDTO>> getActivePublicationByProfile(@PathVariable UUID profileId) {
-                return publicationService.findActiveByProfileId(profileId)
-                                .map(publication -> ResponseEntity.ok(ApiResponse.<PublicationDTO>builder()
-                                                .data(publication)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/profile/{profileId}/active")
+    @Operation(summary = "Текущая публикация", description = "Возвращает текущую активную (опубликованную) версию профиля.")
+    public ResponseEntity<ApiResponse<PublicationDTO>> getActivePublicationByProfile(@PathVariable UUID profileId) {
+        return publicationService.findActiveByProfileId(profileId)
+                .map(publication -> ResponseEntity.ok(ApiResponse.<PublicationDTO>builder()
+                        .data(publication)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

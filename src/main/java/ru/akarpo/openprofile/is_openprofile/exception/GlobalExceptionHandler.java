@@ -11,7 +11,10 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j; // Add usage
+
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -50,7 +53,6 @@ public class GlobalExceptionHandler {
                 .details(errors)
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-
     }
 
     @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
@@ -79,6 +81,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
+        log.error("Internal Server Error caught", ex);
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(Instant.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())

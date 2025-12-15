@@ -18,34 +18,34 @@ import java.util.UUID;
 @Tag(name = "Внешние сервисы", description = "Справочные данные и операции с внешними сервисами")
 public class ExternalServiceController {
 
-        private final ExternalServiceService externalServiceService;
+    private final ExternalServiceService externalServiceService;
 
-        @GetMapping
-        @Operation(summary = "Получить все внешние сервисы", description = "Возвращает список всех поддерживаемых внешних сервисов (например, YouTube, GitHub, Telegram).")
-        public ResponseEntity<ApiResponse<List<ExternalServiceDTO>>> getAllServices() {
-                List<ExternalServiceDTO> services = externalServiceService.findAll();
-                return ResponseEntity.ok(ApiResponse.<List<ExternalServiceDTO>>builder()
-                                .data(services)
-                                .build());
-        }
+    @GetMapping
+    @Operation(summary = "Получить все внешние сервисы", description = "Возвращает список всех поддерживаемых внешних сервисов (например, YouTube, GitHub, Telegram).")
+    public ResponseEntity<ApiResponse<List<ExternalServiceDTO>>> getAllServices() {
+        List<ExternalServiceDTO> services = externalServiceService.findAll();
+        return ResponseEntity.ok(ApiResponse.<List<ExternalServiceDTO>>builder()
+                .data(services)
+                .build());
+    }
 
-        @GetMapping("/{id}")
-        @Operation(summary = "Получить сервис по ID", description = "Возвращает информацию о внешнем сервисе по его уникальному идентификатору.")
-        public ResponseEntity<ApiResponse<ExternalServiceDTO>> getServiceById(@PathVariable UUID id) {
-                return externalServiceService.findById(id)
-                                .map(service -> ResponseEntity.ok(ApiResponse.<ExternalServiceDTO>builder()
-                                                .data(service)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/{id}")
+    @Operation(summary = "Получить сервис по ID", description = "Возвращает информацию о внешнем сервисе по его уникальному идентификатору.")
+    public ResponseEntity<ApiResponse<ExternalServiceDTO>> getServiceById(@PathVariable UUID id) {
+        return externalServiceService.findById(id)
+                .map(service -> ResponseEntity.ok(ApiResponse.<ExternalServiceDTO>builder()
+                        .data(service)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-        @GetMapping("/code/{code}")
-        @Operation(summary = "Получить сервис по коду", description = "Возвращает информацию о внешнем сервисе по его кодовому названию (например, 'github' или 'telegram').")
-        public ResponseEntity<ApiResponse<ExternalServiceDTO>> getServiceByCode(@PathVariable String code) {
-                return externalServiceService.findByCode(code)
-                                .map(service -> ResponseEntity.ok(ApiResponse.<ExternalServiceDTO>builder()
-                                                .data(service)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/code/{code}")
+    @Operation(summary = "Получить сервис по коду", description = "Возвращает информацию о внешнем сервисе по его кодовому названию (например, 'github' или 'telegram').")
+    public ResponseEntity<ApiResponse<ExternalServiceDTO>> getServiceByCode(@PathVariable String code) {
+        return externalServiceService.findByCode(code)
+                .map(service -> ResponseEntity.ok(ApiResponse.<ExternalServiceDTO>builder()
+                        .data(service)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

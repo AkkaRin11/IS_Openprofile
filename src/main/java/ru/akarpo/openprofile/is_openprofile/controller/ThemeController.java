@@ -18,34 +18,34 @@ import java.util.UUID;
 @Tag(name = "Темы оформления", description = "Управление и выбор тем оформления профиля")
 public class ThemeController {
 
-        private final ThemeService themeService;
+    private final ThemeService themeService;
 
-        @GetMapping
-        @Operation(summary = "Получить все темы", description = "Возвращает список всех доступных тем оформления.")
-        public ResponseEntity<ApiResponse<List<ThemeDTO>>> getAllThemes() {
-                List<ThemeDTO> themes = themeService.findAll();
-                return ResponseEntity.ok(ApiResponse.<List<ThemeDTO>>builder()
-                                .data(themes)
-                                .build());
-        }
+    @GetMapping
+    @Operation(summary = "Получить все темы", description = "Возвращает список всех доступных тем оформления.")
+    public ResponseEntity<ApiResponse<List<ThemeDTO>>> getAllThemes() {
+        List<ThemeDTO> themes = themeService.findAll();
+        return ResponseEntity.ok(ApiResponse.<List<ThemeDTO>>builder()
+                .data(themes)
+                .build());
+    }
 
-        @GetMapping("/{id}")
-        @Operation(summary = "Получить тему по ID", description = "Возвращает детали темы по её уникальному идентификатору.")
-        public ResponseEntity<ApiResponse<ThemeDTO>> getThemeById(@PathVariable UUID id) {
-                return themeService.findById(id)
-                                .map(theme -> ResponseEntity.ok(ApiResponse.<ThemeDTO>builder()
-                                                .data(theme)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/{id}")
+    @Operation(summary = "Получить тему по ID", description = "Возвращает детали темы по её уникальному идентификатору.")
+    public ResponseEntity<ApiResponse<ThemeDTO>> getThemeById(@PathVariable UUID id) {
+        return themeService.findById(id)
+                .map(theme -> ResponseEntity.ok(ApiResponse.<ThemeDTO>builder()
+                        .data(theme)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-        @GetMapping("/name/{name}")
-        @Operation(summary = "Получить тему по названию", description = "Возвращает детали темы по её названию (например, 'Dark', 'Light').")
-        public ResponseEntity<ApiResponse<ThemeDTO>> getThemeByName(@PathVariable String name) {
-                return themeService.findByName(name)
-                                .map(theme -> ResponseEntity.ok(ApiResponse.<ThemeDTO>builder()
-                                                .data(theme)
-                                                .build()))
-                                .orElse(ResponseEntity.notFound().build());
-        }
+    @GetMapping("/name/{name}")
+    @Operation(summary = "Получить тему по названию", description = "Возвращает детали темы по её названию (например, 'Dark', 'Light').")
+    public ResponseEntity<ApiResponse<ThemeDTO>> getThemeByName(@PathVariable String name) {
+        return themeService.findByName(name)
+                .map(theme -> ResponseEntity.ok(ApiResponse.<ThemeDTO>builder()
+                        .data(theme)
+                        .build()))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
