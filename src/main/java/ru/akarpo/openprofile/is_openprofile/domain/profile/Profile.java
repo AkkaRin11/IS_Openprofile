@@ -24,48 +24,52 @@ import java.util.UUID;
 @Builder
 public class Profile {
 
-    @Id
-    @GeneratedValue
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
-    private UUID id;
+        @Id
+        @GeneratedValue
+        @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+        private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_profile_user"))
-    private User user;
+        @ManyToOne(optional = false)
+        @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_profile_user"))
+        private User user;
 
-    @Column(nullable = false)
-    private String name;
+        @Column(nullable = false)
+        private String name;
 
-    @Column(nullable = false, unique = true)
-    private String slug;
+        @Column(nullable = false, unique = true)
+        private String slug;
 
-    @Convert(converter = PrivacyLevelConverter.class)
-    @Column(nullable = false, columnDefinition = "privacy_level")
-    private PrivacyLevel privacy;
+        @Column(name = "description")
+        private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "theme_id",
-            foreignKey = @ForeignKey(name = "fk_profile_theme"))
-    private Theme theme;
+        @Column(name = "image")
+        private String image;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+        @Convert(converter = PrivacyLevelConverter.class)
+        @Column(nullable = false, columnDefinition = "privacy_level")
+        private PrivacyLevel privacy;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+        @ManyToOne
+        @JoinColumn(name = "theme_id", foreignKey = @ForeignKey(name = "fk_profile_theme"))
+        private Theme theme;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ProfileWidget> widgets = new ArrayList<>();
+        @CreationTimestamp
+        @Column(name = "created_at", nullable = false, updatable = false)
+        private Instant createdAt;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ProfileMedia> media = new ArrayList<>();
+        @UpdateTimestamp
+        @Column(name = "updated_at", nullable = false)
+        private Instant updatedAt;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Publication> publications = new ArrayList<>();
+        @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+        @Builder.Default
+        private List<ProfileWidget> widgets = new ArrayList<>();
+
+        @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+        @Builder.Default
+        private List<ProfileMedia> media = new ArrayList<>();
+
+        @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+        @Builder.Default
+        private List<Publication> publications = new ArrayList<>();
 }

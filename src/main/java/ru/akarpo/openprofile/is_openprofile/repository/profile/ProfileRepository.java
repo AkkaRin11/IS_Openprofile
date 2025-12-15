@@ -11,6 +11,12 @@ import java.util.UUID;
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, UUID> {
     Optional<Profile> findBySlug(String slug);
+
     List<Profile> findByUserId(UUID userId);
+
     boolean existsBySlug(String slug);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Profile p WHERE p.id = :id")
+    Optional<Profile> findByIdLocked(UUID id);
 }

@@ -14,6 +14,8 @@ import java.util.UUID;
 public class CreateProfileRequest {
     private String name;
     private String slug;
+    private String description;
+    private String image;
     @Builder.Default
     private String privacy = "public";
     private UUID themeId;

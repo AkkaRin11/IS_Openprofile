@@ -69,11 +69,15 @@ public class ProfileService {
                     .orElseThrow(() -> new ResourceNotFoundException("Profile", "id", profileDTO.getId()));
             profile.setName(profileDTO.getName());
             profile.setPrivacy(profileDTO.getPrivacy());
+            profile.setDescription(profileDTO.getDescription());
+            profile.setImage(profileDTO.getImage());
         } else {
             profile = new Profile();
             profile.setName(profileDTO.getName());
             profile.setSlug(profileDTO.getSlug());
             profile.setPrivacy(profileDTO.getPrivacy());
+            profile.setDescription(profileDTO.getDescription());
+            profile.setImage(profileDTO.getImage());
 
             if (profileDTO.getUserId() != null) {
                 User user = userRepository.findById(profileDTO.getUserId())

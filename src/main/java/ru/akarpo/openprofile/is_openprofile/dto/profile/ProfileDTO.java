@@ -18,6 +18,8 @@ public class ProfileDTO {
     private UUID userId;
     private String name;
     private String slug;
+    private String description;
+    private String image;
     private PrivacyLevel privacy;
     private UUID themeId;
     private Instant createdAt;

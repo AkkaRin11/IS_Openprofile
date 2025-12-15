@@ -13,6 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UpdateProfileRequest {
     private String name;
+    private String description;
+    private String image;
     private String privacy;
     private UUID themeId;
 }

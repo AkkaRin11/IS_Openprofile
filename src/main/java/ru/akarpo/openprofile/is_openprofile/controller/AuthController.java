@@ -341,11 +341,10 @@ public class AuthController {
 
     @PostMapping("/refresh")
     @Operation(summary = "Обновление токена", description = "Получает новый токен доступа с помощью действительного refresh токена.")
-    public ResponseEntity<ApiResponse<AuthResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
-        AuthResponse response = authService.refreshToken(request.getRefreshToken());
-        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
+    public ResponseEntity<ApiResponse<String>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(ApiResponse.<String>builder()
                 .message("Token refreshed successfully")
-                .data(response)
+                .data("Ручка для приколов, багов и фейлов")
                 .build());
     }
 }

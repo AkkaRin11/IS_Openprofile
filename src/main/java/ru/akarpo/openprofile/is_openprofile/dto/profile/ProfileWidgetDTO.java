@@ -21,7 +21,8 @@ public class ProfileWidgetDTO {
     private JsonNode settings;
     private JsonNode layout;
     private JsonNode cachedData;
-    private int position;
+    private Integer position;
+    private UUID connectionId;
     private Instant createdAt;
     private Instant updatedAt;
 }

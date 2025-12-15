@@ -15,4 +15,12 @@ public interface ProfileWidgetRepository extends JpaRepository<ProfileWidget, UU
 
     @org.springframework.data.jpa.repository.Query("SELECT DISTINCT pw FROM ProfileWidget pw JOIN pw.bindings b")
     List<ProfileWidget> findAllWithBindings();
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE ProfileWidget w SET w.position = w.position + 1 WHERE w.profile.id = :profileId AND w.position >= :start AND w.position <= :end")
+    void incrementPositionsBetween(UUID profileId, int start, int end);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE ProfileWidget w SET w.position = w.position - 1 WHERE w.profile.id = :profileId AND w.position >= :start AND w.position <= :end")
+    void decrementPositionsBetween(UUID profileId, int start, int end);
 }
