@@ -59,4 +59,10 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+
+    public UserDTO getCurrentUser() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication()
+                .getName();
+        return findByEmailOrThrow(email);
+    }
 }

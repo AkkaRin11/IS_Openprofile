@@ -24,6 +24,28 @@ public class JwtService {
     @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
 
+    private static final String IS_2FA_VERIFIED = "is_2fa_verified";
+    private static final String IS_EMAIL_VERIFIED = "is_email_verified";
+
+    public boolean is2faVerified(String token) {
+        Boolean verified = extractClaim(token, claims -> claims.get(IS_2FA_VERIFIED, Boolean.class));
+        return verified != null && verified;
+    }
+
+    public boolean isEmailVerified(String token) {
+        Boolean verified = extractClaim(token, claims -> claims.get(IS_EMAIL_VERIFIED, Boolean.class));
+        // Backward compatibility: if claim is missing, checking user state might be
+        // safer,
+        // but typically we assume true if not present (legacy tokens) OR false
+        // depending on policy.
+        // Given the requirement "store data in token", we treat null as false/true
+        // based on logic.
+        // Let's assume strict mode: explicit true required. But for backward compat
+        // with admin/old tokens?
+        // Let's return verification status. If null, return false (strict).
+        return verified != null && verified;
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }

@@ -1,56 +1,68 @@
 package ru.akarpo.openprofile.is_openprofile.service;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.google.common.io.BaseEncoding;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.time.Instant;
 
 @Service
 public class TwoFactorService {
 
-    private final LoadingCache<UUID, String> secretCache;
     private final SecureRandom random = new SecureRandom();
 
-    public TwoFactorService() {
-        this.secretCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-                .build(new CacheLoader<UUID, String>() {
-                    @Override
-                    public String load(UUID key) {
-                        return generateRandomSecret();
-                    }
-                });
-    }
-
-    public String generateSecret(UUID userId) {
-        String secret = generateRandomSecret();
-        secretCache.put(userId, secret);
-        return secret;
-    }
-
-    public boolean verifyCode(UUID userId, String code) {
-        try {
-            String secret = secretCache.getIfPresent(userId);
-            if (secret == null) {
-                return false;
-            }
-            return code.length() == 6 && code.matches("\\d+");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private String generateRandomSecret() {
+    public String generateSecret() {
         byte[] bytes = new byte[20];
         random.nextBytes(bytes);
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
+        return BaseEncoding.base32().encode(bytes).replace("=", "");
+    }
+
+    public boolean verifyCode(String secret, String code) {
+        if (secret == null || code == null || !code.matches("\\d{6}")) {
+            return false;
         }
-        return sb.toString();
+
+        long timeIndex = Instant.now().getEpochSecond() / 30;
+
+        // Check current interval and previous one (for drift)
+        for (int i = 0; i >= -1; i--) {
+            if (getCode(secret, timeIndex + i).equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getCode(String secret, long timeIndex) {
+        try {
+            byte[] key = BaseEncoding.base32().decode(secret);
+            byte[] data = new byte[8];
+            for (int i = 8; i-- > 0; timeIndex >>>= 8) {
+                data[i] = (byte) timeIndex;
+            }
+
+            SecretKeySpec signKey = new SecretKeySpec(key, "HmacSHA1");
+            Mac mac = Mac.getInstance("HmacSHA1");
+            mac.init(signKey);
+            byte[] hash = mac.doFinal(data);
+
+            int offset = hash[hash.length - 1] & 0xF;
+            long truncatedHash = 0;
+            for (int i = 0; i < 4; ++i) {
+                truncatedHash <<= 8;
+                truncatedHash |= (hash[offset + i] & 0xFF);
+            }
+
+            truncatedHash &= 0x7FFFFFFF;
+            truncatedHash %= 1000000;
+
+            return String.format("%06d", truncatedHash);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | IllegalArgumentException e) {
+            return "";
+        }
     }
 }

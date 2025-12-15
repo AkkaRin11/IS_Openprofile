@@ -65,7 +65,12 @@ public class AuthService {
         emailService.sendVerificationEmail(user.getEmail(), verificationToken);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-        String jwtToken = jwtService.generateToken(userDetails);
+
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        // extraClaims.put("is_email_verified", false); // Moved to DB check
+        extraClaims.put("is_2fa_verified", true); // No 2FA yet
+
+        String jwtToken = jwtService.generateToken(extraClaims, userDetails);
 
         return AuthResponse.builder()
                 .token(jwtToken)
@@ -77,29 +82,25 @@ public class AuthService {
     @Transactional
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
 
         if (!user.isEmailVerified()) {
-            throw new BadRequestException("Please verify your email before logging in");
+            // throw new BadRequestException("Please verify your email before logging in");
+            // Allow login but with restricted token
         }
 
-        if (user.isTwoFactorEnabled() && (request.getTwoFactorCode() == null || request.getTwoFactorCode().isEmpty())) {
-            throw new BadRequestException("Two-factor authentication code required");
-        }
-
-        if (user.isTwoFactorEnabled()) {
-            boolean valid = twoFactorService.verifyCode(user.getId(), request.getTwoFactorCode());
-            if (!valid) {
-                throw new BadRequestException("Invalid two-factor authentication code");
-            }
-        }
+        boolean is2faVerified = !user.isTwoFactorEnabled();
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-        String jwtToken = jwtService.generateToken(userDetails);
+
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("is_2fa_verified", is2faVerified);
+        // extraClaims.put("is_email_verified", user.isEmailVerified());
+
+        String jwtToken = jwtService.generateToken(extraClaims, userDetails);
 
         return AuthResponse.builder()
                 .token(jwtToken)
@@ -165,7 +166,8 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
-        String secret = twoFactorService.generateSecret(user.getId());
+        String secret = twoFactorService.generateSecret();
+        user.setTwoFactorSecret(secret);
         user.setTwoFactorEnabled(true);
         userRepository.save(user);
 
@@ -178,13 +180,45 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
-        boolean valid = twoFactorService.verifyCode(user.getId(), code);
+        boolean valid = twoFactorService.verifyCode(user.getTwoFactorSecret(), code);
         if (!valid) {
             throw new BadRequestException("Invalid two-factor code");
         }
     }
 
+    @Transactional
+    public AuthResponse completeTwoFactorLogin(String code) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
+        boolean valid = twoFactorService.verifyCode(user.getTwoFactorSecret(), code);
+        if (!valid) {
+            throw new BadRequestException("Invalid two-factor code");
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("is_2fa_verified", true);
+        // extraClaims.put("is_email_verified", user.isEmailVerified());
+
+        String jwtToken = jwtService.generateToken(extraClaims, userDetails);
+
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .email(user.getEmail())
+                .userId(user.getId())
+                .build();
+    }
+
     public AuthResponse refreshToken(String refreshToken) {
         throw new BadRequestException("Refresh token not implemented yet");
+    }
+
+    public boolean getTwoFactorStatus() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        return user.isTwoFactorEnabled();
     }
 }

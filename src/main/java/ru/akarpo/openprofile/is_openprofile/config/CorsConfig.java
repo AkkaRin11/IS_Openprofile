@@ -31,7 +31,8 @@ public class CorsConfig {
             "Accept",
             "Origin",
             "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
+            "Access-Control-Request-Headers",
+            "ngrok-skip-browser-warning"
         ));
         configuration.setExposedHeaders(Arrays.asList(
             "Access-Control-Allow-Origin",

@@ -18,21 +18,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        @Override
+        public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new UsernameNotFoundException(
+                                                "User not found with email: " + email));
 
-        Role role = user.getRole();
-        List<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+                Role role = user.getRole();
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPasswordHash(),
-                authorities
-        );
-    }
+                return new CustomUserDetails(
+                                user.getEmail(),
+                                user.getPasswordHash(),
+                                authorities,
+                                user.isEmailVerified(),
+                                user.isTwoFactorEnabled(),
+                                user.getTwoFactorSecret(),
+                                user.getId());
+        }
 }

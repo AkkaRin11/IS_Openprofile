@@ -30,7 +30,6 @@ public class User {
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)
     private UUID id;
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     @ColumnDefault("'USER'")
@@ -46,6 +45,9 @@ public class User {
     @Column(name = "two_factor_enabled", nullable = false)
     @Builder.Default
     private boolean twoFactorEnabled = false;
+
+    @Column(name = "two_factor_secret")
+    private String twoFactorSecret;
 
     @Column(name = "email_verified", nullable = false)
     @Builder.Default

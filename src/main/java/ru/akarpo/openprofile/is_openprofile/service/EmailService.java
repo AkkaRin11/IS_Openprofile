@@ -36,7 +36,7 @@ public class EmailService {
     @Async
     public void sendPasswordResetEmail(String to, String token) {
         String subject = "Reset your password - OpenProfile";
-        String resetUrl = baseUrl + "/api/auth/reset-password?token=" + token;
+        String resetUrl = baseUrl;
         String message = String.format(
                 "You requested a password reset. Click the link below to reset your password:\n\n%s\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.",
                 resetUrl
